@@ -1,0 +1,8 @@
+﻿  VisualGDB: Sending 1 updated source file to build machine...
+  VisualGDB: [100%] Uploaded 0/1 files (467B/467B)
+  VisualGDB: Run "make CONFIG=Debug" in directory "/tmp/VisualGDB/d/cmver/cmver" on ubuntu@119.29.35.60 (SSH)
+  g++ -ggdb -ffunction-sections -O0   -DDEBUG=1  -c test.cpp -o Debug/test.o -MD -MF Debug/test.dep
+D:\cmver\cmver\test.cpp(8,13): warning : deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+   char *mes = "hello?";
+               ^
+  g++ -o Debug/cmver -Wl,-gc-sections    -Wl,--start-group Debug/inetAddress.o Debug/rio.o Debug/socket.o Debug/socketOps.o Debug/test.o   -Wl,--rpath='$ORIGIN'   -Wl,--end-group

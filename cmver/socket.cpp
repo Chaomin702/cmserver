@@ -24,3 +24,15 @@ void Socket::setReuseAddr(bool on){
 	::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);
 }
 
+std::string Socket::recv(size_t n){
+	return buf_.readn(n);
+}
+
+void Socket::send(const std::string & str){
+	buf_.writen(str);
+}
+
+std::string Socket::readline(){
+	return buf_.readline();
+}
+

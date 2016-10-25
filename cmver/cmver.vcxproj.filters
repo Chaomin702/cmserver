@@ -53,6 +53,12 @@
     <ClCompile Include="rio.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="buffer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="epoll.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inetAddress.h">
@@ -68,6 +74,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="rio.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="buffer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="epoll.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

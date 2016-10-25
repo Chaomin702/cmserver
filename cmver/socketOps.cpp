@@ -14,7 +14,15 @@ const SA* sockaddr_cast(const struct sockaddr_in *addr) {
 	return static_cast<SA*>((void*)(addr));
 }
 
-void setNonBlockAndCloseOnExec(int sockfd) {
+int sockets::createNonblocking() {
+	int sockfd = ::socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0)
+		errorMsg("createNonblocking");
+	setNonBlockAndCloseOnExec(sockfd);
+	return sockfd;
+}
+
+void sockets::setNonBlockAndCloseOnExec(int sockfd){
 	int flags = ::fcntl(sockfd, F_GETFL, 0);
 	flags |= O_NONBLOCK;
 	int ret = ::fcntl(sockfd, F_SETFL, flags);
@@ -25,14 +33,6 @@ void setNonBlockAndCloseOnExec(int sockfd) {
 	ret = ::fcntl(sockfd, F_SETFD, flags);
 	if (ret == -1)
 		errorMsg("setNonBlockAndCloseOnExec");
-}
-
-int sockets::createNonblocking() {
-	int sockfd = ::socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
-		errorMsg("createNonblocking");
-	setNonBlockAndCloseOnExec(sockfd);
-	return sockfd;
 }
 
 int sockets::socket(){
@@ -71,6 +71,19 @@ int sockets::accept(int sockfd, sockaddr_in * addr){
 void sockets::close(int sockfd){
 	if (::close(sockfd) < 0)
 		errorMsg("sockets::close");
+}
+
+std::string sockets::readn(int fd, size_t n){
+	char buf[RIO_BUFSIZE];
+	ssize_t r = ::rio_readn(fd, buf, n);
+	if (r < 0)
+		errorMsg("sockets::readn");
+	return std::string(buf, r);
+}
+
+ssize_t sockets::writen(int fd, const std::string & str){
+	const char* p = str.data();
+	return ::rio_writen(fd, p, str.size());
 }
 
 

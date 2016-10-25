@@ -119,6 +119,9 @@
 #ifndef __UINT32_MAX__
 #define __UINT32_MAX__ 4294967295U
 #endif
+#if !defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__SYSPROGS_CODESENSE__)
+#define __GXX_EXPERIMENTAL_CXX0X__ 1
+#endif
 #ifndef __LDBL_MAX_EXP__
 #define __LDBL_MAX_EXP__ 16384
 #endif
@@ -227,12 +230,15 @@
 #ifndef __INT_FAST16_TYPE__
 #define __INT_FAST16_TYPE__ long int
 #endif
+#ifndef __STRICT_ANSI__
+#define __STRICT_ANSI__ 1
+#endif
 #ifndef __LDBL_HAS_DENORM__
 #define __LDBL_HAS_DENORM__ 1
 #endif
 //VS2005-2012 treats all files as C++, while VS2013+ can treat C files correctly.
 #if defined(_MSC_VER) && (_MSC_VER < 1800 || defined(__cplusplus))
-#define __cplusplus 199711L
+#define __cplusplus 201103L
 #endif
 #ifndef __DEC128_MAX__
 #define __DEC128_MAX__ 9.999999999999999999999999999999999E6144DL
@@ -354,9 +360,6 @@
 #ifndef __UINT_LEAST16_TYPE__
 #define __UINT_LEAST16_TYPE__ short unsigned int
 #endif
-#ifndef unix
-#define unix 1
-#endif
 #ifndef __INT16_MAX__
 #define __INT16_MAX__ 32767
 #endif
@@ -365,6 +368,9 @@
 #endif
 #ifndef __UINT64_MAX__
 #define __UINT64_MAX__ 18446744073709551615UL
+#endif
+#ifndef DEBUG
+#define DEBUG 1
 #endif
 #ifndef __INT8_TYPE__
 #define __INT8_TYPE__ signed char
@@ -464,9 +470,6 @@
 #endif
 #ifndef __INTPTR_MAX__
 #define __INTPTR_MAX__ 9223372036854775807L
-#endif
-#ifndef linux
-#define linux 1
 #endif
 #ifndef __SSE2__
 #define __SSE2__ 1
@@ -591,6 +594,9 @@
 #ifndef __INT_FAST8_TYPE__
 #define __INT_FAST8_TYPE__ signed char
 #endif
+#ifndef __GNUC_STDC_INLINE__
+#define __GNUC_STDC_INLINE__ 1
+#endif
 #ifndef __DBL_DECIMAL_DIG__
 #define __DBL_DECIMAL_DIG__ 17
 #endif
@@ -693,9 +699,6 @@
 #ifndef __UINT_FAST16_MAX__
 #define __UINT_FAST16_MAX__ 18446744073709551615UL
 #endif
-#ifndef __GNUC_GNU_INLINE__
-#define __GNUC_GNU_INLINE__ 1
-#endif
 #ifndef __FLT_MIN_10_EXP__
 #define __FLT_MIN_10_EXP__ (-37)
 #endif
@@ -713,9 +716,6 @@
 #endif
 #ifndef __ATOMIC_RELEASE
 #define __ATOMIC_RELEASE 3
-#endif
-#ifndef DEBUG
-#define DEBUG 1
 #endif
 #endif
 

@@ -24,10 +24,10 @@ ssize_t rio_readn(int fd, void *usrbuf, size_t n){
     return (n-nleft);
 }
 
-ssize_t rio_writen(int fd, void *usrbuf, size_t n){
+ssize_t rio_writen(int fd, const void *usrbuf, size_t n){
     size_t nleft = n;
     ssize_t nwrite;
-    char *bufp = (char*)usrbuf;
+    const char *bufp = (char*)usrbuf;
     
     while(nleft > 0){
         if( (nwrite = write(fd, bufp, nleft)) < 0){
@@ -57,7 +57,7 @@ static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n){
     cnt = n;
     if(rp->rio_cnt < n)
         cnt = rp->rio_cnt;
-    memcpy(usrbuf, rp->rio_buf, cnt);
+    memcpy(usrbuf, rp->rio_bufptr, cnt);
     rp->rio_bufptr += cnt;
     rp->rio_cnt -= cnt;
     return cnt;

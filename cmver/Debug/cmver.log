@@ -1,8 +1,11 @@
-﻿  VisualGDB: Sending 1 updated source file to build machine...
-  VisualGDB: [100%] Uploaded 0/1 files (467B/467B)
+﻿  VisualGDB: Sending 2 updated source files to build machine...
   VisualGDB: Run "make CONFIG=Debug" in directory "/tmp/VisualGDB/d/cmver/cmver" on ubuntu@119.29.35.60 (SSH)
-  g++ -ggdb -ffunction-sections -O0   -DDEBUG=1  -c test.cpp -o Debug/test.o -MD -MF Debug/test.dep
-D:\cmver\cmver\test.cpp(8,13): warning : deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
-   char *mes = "hello?";
-               ^
-  g++ -o Debug/cmver -Wl,-gc-sections    -Wl,--start-group Debug/inetAddress.o Debug/rio.o Debug/socket.o Debug/socketOps.o Debug/test.o   -Wl,--rpath='$ORIGIN'   -Wl,--end-group
+  g++ -ggdb -ffunction-sections -O0 -std=c++11   -DDEBUG=1  -c buffer.cpp -o Debug/buffer.o -MD -MF Debug/buffer.dep
+  g++ -ggdb -ffunction-sections -O0 -std=c++11   -DDEBUG=1  -c epoll.cpp -o Debug/epoll.o -MD -MF Debug/epoll.dep
+  g++ -ggdb -ffunction-sections -O0 -std=c++11   -DDEBUG=1  -c inetAddress.cpp -o Debug/inetAddress.o -MD -MF Debug/inetAddress.dep
+  gcc -ggdb -ffunction-sections -O0 -std=c++11   -DDEBUG=1  -c rio.c -o Debug/rio.o -MD -MF Debug/rio.dep
+cc1 : warning : command line option ‘-std=c++11’ is valid for C++/ObjC++ but not for C [enabled by default]
+  g++ -ggdb -ffunction-sections -O0 -std=c++11   -DDEBUG=1  -c socket.cpp -o Debug/socket.o -MD -MF Debug/socket.dep
+  g++ -ggdb -ffunction-sections -O0 -std=c++11   -DDEBUG=1  -c socketOps.cpp -o Debug/socketOps.o -MD -MF Debug/socketOps.dep
+  g++ -ggdb -ffunction-sections -O0 -std=c++11   -DDEBUG=1  -c test.cpp -o Debug/test.o -MD -MF Debug/test.dep
+  g++ -o Debug/cmver -Wl,-gc-sections    -Wl,--start-group Debug/buffer.o Debug/epoll.o Debug/inetAddress.o Debug/rio.o Debug/socket.o Debug/socketOps.o Debug/test.o   -Wl,--rpath='$ORIGIN'   -Wl,--end-group

@@ -1,12 +1,25 @@
 #include <iostream>
+#include <memory>
+#include <functional>
 #include "socket.h"
 #include "socketOps.h"
 #include "epoll.h"
+#include "threadPoll.h"
 extern "C" {
 #include "rio.h"
 }
-int main(void) {
+
+void func(int fd){
 	char buf[RIO_BUFSIZE];
+	int r =::read(fd, buf, RIO_BUFSIZE);
+	std::cout << "read size :" << r << std::endl;
+	::write(fd, "haha\n", 5);
+	::close(fd);
+}
+
+int main(void) {
+	ThreadPoll tp(100, 10);
+	tp.start();
 	Socket s(sockets::socket());
 	s.setReuseAddr(true);
 	InetAddress addr(3000);
@@ -30,10 +43,8 @@ int main(void) {
 				std::cout << "new connect " << connfd << std::endl;
 			}
 			else if (ev.events & EPOLLIN) {
-				int r = ::read(ev.data.fd, buf, RIO_BUFSIZE);
-				std::cout <<"read size :" << r << std::endl;
-				::write(ev.data.fd, "haha\n", 5);
-				::close(ev.data.fd);
+				int fd = ev.data.fd;
+				tp.addTask(std::bind(func, fd));
 			}
 			else {
 				errorMsg("epoll error");

@@ -1,7 +1,9 @@
 #include "epoll.h"
-
+#include "dbg.h"
 void Epoll::create(int flags){
 	epfd_ = epoll_create(flags);
+	if (epfd_ == -1)
+		errorMsg("Epoll::create");
 	if (eventsPtr_ != nullptr)
 		delete[] eventsPtr_;
 	eventsPtr_ = new epoll_event[MAXEVENTS + 1];
@@ -14,7 +16,9 @@ void Epoll::ctrl(int fd, long long data, uint32_t events, int op){
 		ev.events = events | EPOLLET;
 	else
 		ev.events = events;
-	epoll_ctl(epfd_, op, fd, &ev);
+	int r = epoll_ctl(epfd_, op, fd, &ev);
+	if (r == -1)
+		errorMsg("Epoll::ctrl");
 }
 
 void Epoll::add(int fd, long long data, uint32_t event){

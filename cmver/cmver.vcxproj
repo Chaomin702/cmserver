@@ -71,12 +71,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="condition.h" />
     <ClInclude Include="dbg.h" />
     <ClInclude Include="epoll.h" />
     <ClInclude Include="inetAddress.h" />
+    <ClInclude Include="mutexLock.h" />
+    <ClInclude Include="nonCopyable.h" />
     <ClInclude Include="rio.h" />
     <ClInclude Include="socket.h" />
     <ClInclude Include="socketOps.h" />
+    <ClInclude Include="thread.h" />
+    <ClInclude Include="threadPoll.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="buffer.cpp" />
@@ -86,6 +91,8 @@
     <ClCompile Include="socket.cpp" />
     <ClCompile Include="socketOps.cpp" />
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="thread.cpp" />
+    <ClCompile Include="threadpoll.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -59,6 +59,12 @@
     <ClCompile Include="epoll.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="threadpoll.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inetAddress.h">
@@ -80,6 +86,21 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="epoll.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="condition.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="mutexLock.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="nonCopyable.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="thread.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="threadPoll.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,6 +5,9 @@ extern "C" {
 #include "rio.h"
 }
 namespace sockets {
+	using ::read;
+	using ::rio_readn;
+	using ::rio_writen;
 	int createNonblocking();
 	void setNonBlockAndCloseOnExec(int sockfd);
 	int socket();

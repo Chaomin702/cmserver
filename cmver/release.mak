@@ -16,12 +16,12 @@ PREPROCESSOR_MACROS := NDEBUG=1 RELEASE=1
 INCLUDE_DIRS := 
 LIBRARY_DIRS := 
 LIBRARY_NAMES := 
-ADDITIONAL_LINKER_INPUTS := 
+ADDITIONAL_LINKER_INPUTS := -lpthread
 MACOS_FRAMEWORKS := 
 LINUX_PACKAGES := 
 
 CFLAGS := -ggdb -ffunction-sections -O3
-CXXFLAGS := -ggdb -ffunction-sections -O3
+CXXFLAGS := -ggdb -ffunction-sections -O3 -std=c++11
 ASFLAGS := 
 LDFLAGS := -Wl,-gc-sections
 COMMONFLAGS := 

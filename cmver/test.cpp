@@ -5,14 +5,13 @@
 #include "socketOps.h"
 #include "epoll.h"
 #include "threadPoll.h"
-extern "C" {
-#include "rio.h"
-}
+#include "httpParser.h"
 
 void func(int fd){
+	std::cout << "fd: " << fd << "\n";
 	char buf[RIO_BUFSIZE];
 	int r =::read(fd, buf, RIO_BUFSIZE);
-	std::cout << "read size :" << r << std::endl;
+	std::cout << buf << std::endl;
 	::write(fd, "haha\n", 5);
 	::close(fd);
 }
@@ -44,7 +43,8 @@ int main(void) {
 			}
 			else if (ev.events & EPOLLIN) {
 				int fd = ev.data.fd;
-				tp.addTask(std::bind(func, fd));
+				cm_http::handleHttpRequest hhp = std::make_shared<cm_http::httpRequest>(fd);
+				tp.addTask(std::bind(cm_http::doRequest, hhp));
 			}
 			else {
 				errorMsg("epoll error");

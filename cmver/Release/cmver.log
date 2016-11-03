@@ -1,0 +1,16 @@
+﻿  VisualGDB: Sending 2 updated source files to build machine...
+  VisualGDB: Run "make CONFIG=Release" in directory "/tmp/VisualGDB/d/cmver/cmver" on ubuntu@119.29.35.60 (SSH)
+  g++ -ggdb -ffunction-sections -O3 -std=c++11   -DNDEBUG=1 -DRELEASE=1  -c buffer.cpp -o Release/buffer.o -MD -MF Release/buffer.dep
+  g++ -ggdb -ffunction-sections -O3 -std=c++11   -DNDEBUG=1 -DRELEASE=1  -c epoll.cpp -o Release/epoll.o -MD -MF Release/epoll.dep
+  g++ -ggdb -ffunction-sections -O3 -std=c++11   -DNDEBUG=1 -DRELEASE=1  -c inetAddress.cpp -o Release/inetAddress.o -MD -MF Release/inetAddress.dep
+  gcc -ggdb -ffunction-sections -O3   -DNDEBUG=1 -DRELEASE=1  -c rio.c -o Release/rio.o -MD -MF Release/rio.dep
+  g++ -ggdb -ffunction-sections -O3 -std=c++11   -DNDEBUG=1 -DRELEASE=1  -c socket.cpp -o Release/socket.o -MD -MF Release/socket.dep
+  g++ -ggdb -ffunction-sections -O3 -std=c++11   -DNDEBUG=1 -DRELEASE=1  -c socketOps.cpp -o Release/socketOps.o -MD -MF Release/socketOps.dep
+  g++ -ggdb -ffunction-sections -O3 -std=c++11   -DNDEBUG=1 -DRELEASE=1  -c test.cpp -o Release/test.o -MD -MF Release/test.dep
+  test.cpp: In function ‘void func(int)’:
+D:\cmver\cmver\test.cpp(17,26): warning : ignoring return value of ‘ssize_t write(int, const void*, size_t)’, declared with attribute warn_unused_result [-Wunused-result]
+    ::write(fd, "haha\n", 5);
+                            ^
+  g++ -ggdb -ffunction-sections -O3 -std=c++11   -DNDEBUG=1 -DRELEASE=1  -c thread.cpp -o Release/thread.o -MD -MF Release/thread.dep
+  g++ -ggdb -ffunction-sections -O3 -std=c++11   -DNDEBUG=1 -DRELEASE=1  -c threadpoll.cpp -o Release/threadpoll.o -MD -MF Release/threadpoll.dep
+  g++ -o Release/cmver -Wl,-gc-sections    -Wl,--start-group Release/buffer.o Release/epoll.o Release/inetAddress.o Release/rio.o Release/socket.o Release/socketOps.o Release/test.o Release/thread.o Release/threadpoll.o   -Wl,--rpath='$ORIGIN'  -lpthread -Wl,--end-group

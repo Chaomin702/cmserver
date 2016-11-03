@@ -35,7 +35,7 @@ error:
 	$(error Invalid configuration, please check your inputs)
 endif
 
-SOURCEFILES := buffer.cpp epoll.cpp inetAddress.cpp rio.c socket.cpp socketOps.cpp test.cpp thread.cpp threadpoll.cpp
+SOURCEFILES := buffer.cpp epoll.cpp httpParse.cpp inetAddress.cpp rio.c socket.cpp socketOps.cpp test.cpp thread.cpp threadpoll.cpp
 EXTERNAL_LIBS := 
 EXTERNAL_LIBS_COPIED := $(foreach lib, $(EXTERNAL_LIBS),$(BINARYDIR)/$(notdir $(lib)))
 

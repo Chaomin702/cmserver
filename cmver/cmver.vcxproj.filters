@@ -65,6 +65,9 @@
     <ClCompile Include="thread.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="httpParse.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inetAddress.h">
@@ -101,6 +104,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="threadPoll.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="httpParser.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

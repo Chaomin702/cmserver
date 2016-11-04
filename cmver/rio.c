@@ -1,5 +1,5 @@
 #include "rio.h"
-
+#include "dbg.h"
 void rio_readinitb(rio_t *rp, int fd){
     rp->rio_fd = fd;
     rp->rio_cnt = 0;
@@ -31,7 +31,8 @@ ssize_t rio_writen(int fd, const void *usrbuf, size_t n){
     
     while(nleft > 0){
         if( (nwrite = write(fd, bufp, nleft)) < 0){
-            if(errno == EINTR)
+//	        log_err("errno == %d\n", errno);
+            if(errno == EINTR || errno == EAGAIN)
                 nwrite = 0;
             else
                 return -1;

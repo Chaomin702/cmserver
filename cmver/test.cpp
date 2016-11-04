@@ -7,16 +7,12 @@
 #include "threadPoll.h"
 #include "httpParser.h"
 
-void func(int fd){
-	std::cout << "fd: " << fd << "\n";
-	char buf[RIO_BUFSIZE];
-	int r =::read(fd, buf, RIO_BUFSIZE);
-	std::cout << buf << std::endl;
-	::write(fd, "haha\n", 5);
-	::close(fd);
+void func(int signo){
+	std::cout << signo << " PIPE signal ignore" << std::endl;
 }
 
 int main(void) {
+	sockets::signal(SIGPIPE, func);
 	ThreadPoll tp(100, 10);
 	tp.start();
 	Socket s(sockets::socket());
@@ -32,7 +28,7 @@ int main(void) {
 	while (true) {
 		int n = poll.wait(-1);
 		if (n == -1)
-			errorMsg("epoll:wait error");
+			log_info("epoll:wait error");
 		for (int i = 0; i < n; ++i) {
 			auto &ev = poll.get(i);
 			if (ev.data.fd == s.fd()) {
@@ -47,7 +43,7 @@ int main(void) {
 				tp.addTask(std::bind(cm_http::doRequest, hhp));
 			}
 			else {
-				errorMsg("epoll error");
+				log_info("epoll error");
 			}
 		}
 	}

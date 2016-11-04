@@ -5,7 +5,6 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <iostream>
 #include <assert.h>
 #ifdef NDEBUG
 	#define debug(M, ...)
@@ -28,20 +27,20 @@
 #define check_debug(A, M, ...) if(!(A)) { debug(M "\n", ##__VA_ARGS__); /* exit(1); */}
 
 #endif
-template<typename T>
-std::ostream& print(std::ostream &os, const T &t) {
-	return os << t <<"\n";
-}
-
-template<typename T, typename... Args>
- std::ostream& print(std::ostream &os, const T &t, const Args &... rest) {
-	os << t << ", ";
-	return print(os, rest...);
-}
-
-template <typename T, typename... Args>
- void errorMsg(const T &t, const Args &... rest) {
-	std::cout << "[ERROR] " << __FILE__ << " " << __LINE__ << " ";
-	print(std::cout, t, rest...);
-}
+//template<typename T>
+//std::ostream& print(std::ostream &os, const T &t) {
+//	return os << t <<"\n";
+//}
+//
+//template<typename T, typename... Args>
+// std::ostream& print(std::ostream &os, const T &t, const Args &... rest) {
+//	os << t << ", ";
+//	return print(os, rest...);
+//}
+//
+//template <typename T, typename... Args>
+// void errorMsg(const T &t, const Args &... rest) {
+//	std::cout << "[ERROR] " << __FILE__ << " " << __LINE__ << " ";
+//	print(std::cout, t, rest...);
+//}
 #pragma once

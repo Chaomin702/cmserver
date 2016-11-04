@@ -3,7 +3,7 @@
 void Epoll::create(int flags){
 	epfd_ = epoll_create(flags);
 	if (epfd_ == -1)
-		errorMsg("Epoll::create");
+		log_info("Epoll::create");
 	if (eventsPtr_ != nullptr)
 		delete[] eventsPtr_;
 	eventsPtr_ = new epoll_event[MAXEVENTS + 1];
@@ -18,7 +18,7 @@ void Epoll::ctrl(int fd, long long data, uint32_t events, int op){
 		ev.events = events;
 	int r = epoll_ctl(epfd_, op, fd, &ev);
 	if (r == -1)
-		errorMsg("Epoll::ctrl");
+		log_info("Epoll::ctrl");
 }
 
 void Epoll::add(int fd, long long data, uint32_t event){

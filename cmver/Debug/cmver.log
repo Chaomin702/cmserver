@@ -1,3 +1,13 @@
-﻿  VisualGDB: No file changes detected. If you believe it's a mistake, please clean the project and build it again.
+﻿  VisualGDB: Sending 1 updated source file to build machine...
   VisualGDB: Run "make CONFIG=Debug" in directory "/tmp/VisualGDB/d/cmver/cmver" on ubuntu@119.29.35.60 (SSH)
-  make: Nothing to be done for `all'.
+  g++ -ggdb -ffunction-sections -O0 -std=c++11   -DDEBUG=1  -c httpParse.cpp -o Debug/httpParse.o -MD -MF Debug/httpParse.dep
+  In file included from httpParser.h:7:0,
+                   from httpParse.cpp:1:
+  httpParse.cpp: In function ‘void cm_http::doRequest(cm_http::handleHttpRequest)’:
+D:\cmver\cmver\dbg.h(21,101): warning : format ‘%d’ expects argument of type ‘int’, but argument 6 has type ‘size_t {aka long unsigned int}’ [-Wformat=]
+   #define log_info(M, ...) fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+                                                                                                       ^
+  D:\cmver\cmver\httpParse.cpp(214,2): note:  in expansion of macro ‘log_info’
+    log_info("%d read %d bytes\n", hp->fd, n);
+    ^
+  g++ -o Debug/cmver -Wl,-gc-sections    -Wl,--start-group Debug/buffer.o Debug/epoll.o Debug/httpParse.o Debug/inetAddress.o Debug/rio.o Debug/socket.o Debug/socketOps.o Debug/test.o Debug/thread.o Debug/threadpoll.o   -Wl,--rpath='$ORIGIN'  -lpthread -Wl,--end-group

@@ -221,6 +221,11 @@ void cm_http::doRequest(handleHttpRequest hp) {
 	auto ps = httpParseRequestLine(hp);
 	check(ps == HTTP_PARSE_OK, "request line parse result %d", ps);
 	log_info("method: %d", hp->method);
+	if (hp->method != HTTP_GET) {
+		doError(hp->fd, "not implement", "200", "cmver", "can't do this");
+		sockets::close(hp->fd);
+		return;
+	 }
 	string filename, cigargs;
 	parseUri(hp->uriStart, filename, cigargs);
 	struct stat sbuf;
@@ -235,6 +240,7 @@ void cm_http::doRequest(handleHttpRequest hp) {
 			return;
     }
 	serveStatic(hp->fd, filename, sbuf.st_size);
+	sockets::close(hp->fd);
 }
 	
 void cm_http::serveStatic(int fd, string &filename, int filesize) {
@@ -250,7 +256,8 @@ void cm_http::serveStatic(int fd, string &filename, int filesize) {
 	int srcfd = open(filename.c_str(), O_RDONLY, 0);
 	char* scrp = (char*)mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);
 	close(srcfd);
-	sockets::rio_writen(fd, scrp, filesize);
+	ssize_t n = sockets::rio_writen(fd, scrp, filesize);
+	check(n == filesize, "writen %ld bytes", n);
 	munmap(scrp, filesize);
 }
 void cm_http::doError(int fd, const string &cause, const string &errnum, const string &shortmsg, const string &longmsg) {

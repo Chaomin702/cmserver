@@ -17,7 +17,7 @@ const SA* sockaddr_cast(const struct sockaddr_in *addr) {
 int sockets::createNonblocking() {
 	int sockfd = ::socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
-		log_info("createNonblocking");
+		log_err("createNonblocking");
 	setNonBlockAndCloseOnExec(sockfd);
 	return sockfd;
 }
@@ -27,18 +27,18 @@ void sockets::setNonBlockAndCloseOnExec(int sockfd){
 	flags |= O_NONBLOCK;
 	int ret = ::fcntl(sockfd, F_SETFL, flags);
 	if (ret == -1)
-		log_info("setNonBlockAndCloseOnExec");
+		log_err("setNonBlockAndCloseOnExec");
 	flags = ::fcntl(sockfd, F_GETFD, 0);
 	flags |= FD_CLOEXEC;
 	ret = ::fcntl(sockfd, F_SETFD, flags);
 	if (ret == -1)
-		log_info("setNonBlockAndCloseOnExec");
+		log_err("setNonBlockAndCloseOnExec");
 }
 
 int sockets::socket(){
 	int sockfd = ::socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
-		log_info("createNonblocking");
+		log_err("createNonblocking");
 	return sockfd;
 }
 
@@ -49,13 +49,13 @@ int sockets::connect(int sockfd, const sockaddr_in & addr){
 void sockets::bind(int sockfd, const struct sockaddr_in & addr){
 	int ret = ::bind(sockfd, sockaddr_cast(&addr), sizeof addr);
 	if (ret < 0)
-		log_info("sockets::bind");
+		log_err("sockets::bind");
 }
 
 void sockets::listen(int sockfd){
 	int ret = ::listen(sockfd, SOMAXCONN);
 	if (ret < 0)
-		log_info("sockets::listen");
+		log_err("sockets::listen");
 }
 
 int sockets::accept(int sockfd, sockaddr_in * addr){
@@ -63,21 +63,22 @@ int sockets::accept(int sockfd, sockaddr_in * addr){
 	int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
 	if (connfd < 0) {
 		if (errno != EAGAIN && errno != EWOULDBLOCK)
-			log_info("sockets::accept");
+			log_err("sockets::accept");
 	}
 	return connfd;
 }
 
 void sockets::close(int sockfd){
 	if (::close(sockfd) < 0)
-		log_info("sockets::close");
+		log_err("sockets::close");
+	log_info("socket fd %d closed", sockfd);
 }
 
 std::string sockets::readn(int fd, size_t n){
 	char buf[RIO_BUFSIZE];
 	ssize_t r = ::rio_readn(fd, buf, n);
 	if (r < 0)
-		log_info("sockets::readn");
+		log_err("sockets::readn");
 	return std::string(buf, r);
 }
 

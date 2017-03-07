@@ -5,10 +5,15 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <iostream>
+#include <algorithm>
 const std::string servdir = "/home/ubuntu/webserver/servfiles";
 using namespace  cm_http;
 using std::string;
-const std::map<string, string> filetypes = {
+void headerConnection(handleHttpRequest hp,const string&);
+void headerIgnore(handleHttpRequest hp, const string&data);
+void headerIfModifySince(handleHttpRequest hp, const string& data);
+const std::map<const string, const string> filetypes = {
 	{".html", "text/html"},
     {".xml", "text/xml"},
     {".xhtml", "application/xhtml+xml"},
@@ -29,6 +34,12 @@ const std::map<string, string> filetypes = {
     {".css", "text/css"},
     {"" ,"text/plain"}
 	};
+const std::map<const string, std::function<void(handleHttpRequest,const string&)>> headerHandles = { 
+	{"connection",headerConnection},
+	{"host",headerIgnore},
+	{"if-modified-since",headerIfModifySince},
+	{"",headerIgnore}
+};
 const string& getFileType(const string& type) {
 	auto it = filetypes.find(type);
 	if (it != filetypes.end())
@@ -36,21 +47,14 @@ const string& getFileType(const string& type) {
 	else
 		return filetypes.find("")->second;
 }
-Method parseMethod(char *s, char *t) {
-	assert(t > s);
-	switch (t - s) {
-	case 3:
-		if (str3Cmp(s, 'G', 'E', 'T', ' '))
-			return HTTP_GET;
-	case 4:
-		if (str4Cmp(s, 'P', 'O', 'S', 'T'))
-			return HTTP_POST;
-		if (str4Cmp(s, 'H', 'E', 'A', 'D'))
-			return HTTP_HEAD;
-		return HTTP_UNKNOW;
-	default :
-		return HTTP_UNKNOW;
-	}
+Method parseMethod(const char *s) {
+	if (str3Cmp(s, 'G', 'E', 'T', '\0'))
+		return HTTP_GET;
+	else if (str4Cmp(s, 'P', 'O', 'S', 'T'))
+		return HTTP_POST;
+	else if (str4Cmp(s, 'H', 'E', 'A', 'D'))
+		return HTTP_HEAD;
+	return HTTP_UNKNOW_METHOD;
 }
 void parseUri(const char*uri, std::string &filename, std::string &cgiargs) {
 	assert(uri != NULL);
@@ -64,10 +68,85 @@ void parseUri(const char*uri, std::string &filename, std::string &cgiargs) {
 		filename.append("index.html");
 	log_info("filename: %s", filename.c_str());
 }
+cm_http::ParseState cm_http::httpParseHeader(handleHttpRequest hp) {
+	check(hp->pos != hp->last, "");
+	ParseHeaderState state = hp->headerState;
+	for (size_t t = hp->pos; t < hp->last; ++t) {
+		char ch = hp->buf[t];
+		char *p = &hp->buf[t];
+		switch (state) {
+		case sw_hstart:
+			if (isCRLF(ch))
+				break;
+			hp->keyStart = p;
+			state = sw_key;
+			break;
+		case sw_key:
+			if (ch == ' ') {
+				state = sw_spaces_before_colon;
+				*p = '\0';
+			}
+			else if (ch == ':') {
+				state = sw_spaces_after_colon;
+				*p = '\0';
+			 }
+			break;
+		case sw_spaces_before_colon:
+			if (ch == ':')
+				state = sw_spaces_after_colon;
+			else if (ch != ' ')
+				return HTTP_PARSE_INVALID_KEY;
+			break;
+		case sw_spaces_after_colon:
+			if (ch != ' ') {
+				hp->valueStart = p;
+				state = sw_value;
+			}
+			break;
+		case sw_value:
+			if (ch == CR) {
+				state = sw_cr;
+				*p = '\0';
+			}
+			else if (ch == LF) {
+				state = sw_crlf;
+				*p = '\0';
+			}
+			break;
+		case sw_cr:
+			if (ch == LF) {
+				state = sw_crlf;
+				hp->headerstrs.push_back(std::make_pair(hp->keyStart, hp->valueStart));
+				break;
+			}
+			return HTTP_PARSE_INVALID_VALUE;
+		case sw_crlf:
+			if (ch == CR)
+				state = sw_crlfcr;
+			else {
+				state = sw_key;
+				hp->keyStart = p;
+			 }
+			break;
+		case sw_crlfcr:
+			if (ch == LF) {
+				hp->pos = t;
+				hp->headerState = sw_hstart;
+				return HTTP_PARSE_OK;
+			}
+			else
+				return HTTP_PARSE_INVALD_HEADER;
+			break;
+		default:break;
+		}
+	}
+	hp->pos = hp->last - 1;
+	hp->headerState = state;
+	return HTTP_AGAIN;
+}
 cm_http::ParseState cm_http::httpParseRequestLine(handleHttpRequest hp){
 	check(hp->pos != hp->last, "");
-	ParseRequestLineState state = hp->state;
-	check(state == sw_start, "state should be sw_start");
+	ParseRequestLineState state = hp->requestState;
 	for (size_t t = hp->pos; t < hp->last; ++t) {
 		char ch = hp->buf[t];
 		char *p = &hp->buf[t];
@@ -84,8 +163,8 @@ cm_http::ParseState cm_http::httpParseRequestLine(handleHttpRequest hp){
 				return HTTP_PARSE_INVALID_METHOD;
 		case sw_method:
 			if (ch == ' ') {
-				hp->methodEnd = p;
-				hp->method = parseMethod(hp->methodStart, hp->methodEnd);
+				*p = '\0';
+				hp->method = parseMethod(hp->methodStart);
 				state = sw_spaces_before_uri;
 				break;
 			}
@@ -104,7 +183,6 @@ cm_http::ParseState cm_http::httpParseRequestLine(handleHttpRequest hp){
 				return HTTP_PARSE_INVALID_URL;
 		case sw_after_slash_in_uri:
 			if (ch == ' ') {
-				hp->uriEnd = p;
 				*p = '\0';
 				state = sw_http;
 				break;
@@ -201,31 +279,39 @@ cm_http::ParseState cm_http::httpParseRequestLine(handleHttpRequest hp){
 				return HTTP_PARSE_INVALID_PROTO;
 		case sw_done:
 			hp->pos = t;
+			hp->requestState = sw_start;
 			return HTTP_PARSE_OK;
 		default :
 			break;
 		}
 	}
+	hp->pos = hp->last - 1;
 	return HTTP_AGAIN;
 }
 
 void cm_http::doRequest(handleHttpRequest hp) {
 	size_t n = sockets::read(hp->fd, hp->buf, MAX_BUF);
-	log_info("%d read %d bytes\n", hp->fd, n);
+	log_info("%d read %ld bytes\n", hp->fd, n);
 	if (n == 0) {
-		log_info("close fd %d",hp->fd);
 		sockets::close(hp->fd);
 		return;
 	}
 	hp->last += n;
+	std::cout << hp->buf << std::endl;
 	auto ps = httpParseRequestLine(hp);
 	check(ps == HTTP_PARSE_OK, "request line parse result %d", ps);
 	log_info("method: %d", hp->method);
+	
 	if (hp->method != HTTP_GET) {
 		doError(hp->fd, "not implement", "200", "cmver", "can't do this");
 		sockets::close(hp->fd);
 		return;
 	 }
+	
+	ps = httpParseHeader(hp);
+	check(ps == HTTP_PARSE_OK, "header parse result %d", ps);
+	doHeaderProcess(hp);
+	
 	string filename, cigargs;
 	parseUri(hp->uriStart, filename, cigargs);
 	struct stat sbuf;
@@ -278,21 +364,35 @@ void cm_http::doError(int fd, const string &cause, const string &errnum, const s
 	sockets::rio_writen(fd, header.c_str(), header.size());
 	sockets::rio_writen(fd, body.c_str(), body.size());
 }
-//void cm_http::doError(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg){
-//    char header[MAX_BUF], body[MAX_BUF];
-//
-//    sprintf(body, "<html><title>cmver Error</title>");
-//    sprintf(body, "%s<body bgcolor=""ffffff"">\n", body);
-//    sprintf(body, "%s%s: %s\n", body, errnum, shortmsg);
-//    sprintf(body, "%s<p>%s: %s\n</p>", body, longmsg, cause);
-//    sprintf(body, "%s<hr><em>Cmver web server</em>\n</body></html>", body);
-//
-//    sprintf(header, "HTTP/1.1 %s %s\r\n", errnum, shortmsg);
-//    sprintf(header, "%sServer: Cmver\r\n", header);
-//    sprintf(header, "%sContent-type: text/html\r\n", header);
-//    sprintf(header, "%sConnection: close\r\n", header);
-//    sprintf(header, "%sContent-length: %d\r\n\r\n", header, (int)strlen(body));
-//	sockets::rio_writen(fd, header, strlen(header));
-//    sockets::rio_writen(fd, body, strlen(body));
-//    return;
-//}
+
+void cm_http::doHeaderProcess(handleHttpRequest hp) {
+	auto it = hp->headerstrs.begin();
+	while (it != hp->headerstrs.end()) {
+		string key(it->first);
+		std::transform(key.begin(),key.end(),key.begin(),::tolower);
+		auto r = headerHandles.find(key);
+		if (r != headerHandles.end()) {
+			r->second(hp, it->second);
+		}
+		else {
+			headerHandles.find("")->second(hp, it->second);
+		 }
+		it = hp->headerstrs.erase(it);
+	}
+}
+
+void headerConnection(handleHttpRequest hp, const string &data) {
+	if (strcasecmp("Keep-Alive", data.c_str())==0) {
+		hp->headers.keepAlive = true;
+		log_info("keep-alive");
+	}
+}
+
+void headerIgnore(handleHttpRequest hp, const string&data) {
+	//log_warn("header value %s ignored", data.c_str());
+	return;
+}
+
+void headerIfModifySince(handleHttpRequest hp, const string& data) {
+	
+}
